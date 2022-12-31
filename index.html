@@ -1,0 +1,65 @@
+<!-- This is the HTML part of the code -->
+
+<!-- The form where the user can enter a word -->
+<form id="form">
+  <label for="inputWord">Enter a word:</label><br>
+  <input type="text" id="inputWord" name="inputWord"><br>
+  <input type="button" value="Generate Story" onclick="generateStory()">
+</form> 
+
+<!-- The div where the generated story will be displayed -->
+<div id="story"></div>
+<script>
+// This function generates the story using a Markov chain
+async function generateStory() {
+  // Get the user's input word
+  const inputWord = document.getElementById("inputWord").value;
+
+  // Load the text file and train the Markov chain on its contents
+  const response = await fetch("path/to/text/file.txt");
+  const text = await response.text();
+  const markovChain = trainMarkovChain(text);
+
+  // Initialize the story with the user's input word
+  let story = inputWord;
+
+  // Generate the rest of the story using the Markov chain
+  let currentWord = inputWord;
+  while (currentWord in markovChain) {
+    // Choose the next word based on the probabilities in the Markov chain
+    const possibleNextWords = markovChain[currentWord];
+    const nextWord = possibleNextWords[Math.floor(Math.random() * possibleNextWords.length)];
+
+    // Add the next word to the story
+    story += " " + nextWord;
+
+    // Update the current word to be the last word in the story
+    currentWord = nextWord;
+  }
+
+  // Display the generated story
+  document.getElementById("story").innerHTML = story;
+}
+
+// This function trains a Markov chain on the given text
+function trainMarkovChain(text) {
+  // Split the text into an array of words
+  const words = text.split(" ");
+
+  // Initialize the Markov chain
+  const markovChain = {};
+
+  // Build the Markov chain
+  for (let i = 0; i < words.length - 1; i++) {
+    const currentWord = words[i];
+    const nextWord = words[i + 1];
+    if (currentWord in markovChain) {
+      markovChain[currentWord].push(nextWord);
+    } else {
+      markovChain[currentWord] = [nextWord];
+    }
+  }
+
+  return markovChain;
+}
+</script>
